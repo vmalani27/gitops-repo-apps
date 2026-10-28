@@ -1,4 +1,4 @@
-# Home Lab GitOps
+# GitOps Apps Repository
 
 Declarative GitOps repository for the local engineering cluster. Managed by ArgoCD using the "App of Apps" pattern.
 
@@ -16,5 +16,5 @@ Declarative GitOps repository for the local engineering cluster. Managed by Argo
 
 ## How It Works
 
-ArgoCD monitors the `main` branch of this repository (`https://github.com/vmalani27/home-lab-gitops.git`). 
+ArgoCD monitors the `main` branch of this repository (`https://github.com/vmalani27/gitops-repo-apps.git`). 
 Any changes merged here are automatically reconciled and synchronized to the local Minikube cluster.
