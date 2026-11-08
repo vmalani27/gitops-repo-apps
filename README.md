@@ -2,7 +2,14 @@
 
 Declarative GitOps repository for the local engineering cluster. Managed continuously by ArgoCD using the **App of Apps** pattern.
 
-📖 **Complete Architecture & Learning Guide**: See [GitOps Architecture Guide](docs/gitops-architecture.md) for in-depth documentation on the Root Application, AppProjects, child Applications, self-healing, and hands-on experiments.
+📖 **Architecture & Learning Guide**: See [GitOps Architecture Guide](docs/gitops-architecture.md) for in-depth documentation on the Root Application, AppProjects, child Applications, self-healing, and hands-on experiments.
+
+---
+
+## Architecture: Two-Repository Pattern
+
+* **Platform Repository ([`My-home-Lab-setup`](https://github.com/vmalani27/My-home-Lab-setup))**: Provisions the Kubernetes cluster, Ingress-NGINX controller, wildcard TLS certificates (`mkcert`), and the ArgoCD operator.
+* **GitOps Repository (This Repository)**: The single source of truth for all Kubernetes applications and workloads. Once registered, ArgoCD continuously reconciles cluster state against this repository.
 
 ---
 
@@ -14,15 +21,15 @@ Declarative GitOps repository for the local engineering cluster. Managed continu
 ├── docs/                     # Architecture & GitOps learning documentation
 │   └── gitops-architecture.md
 ├── apps/                     # Dedicated ArgoCD Application manifests for components
-│   ├── kustomization.yaml
-│   ├── argocd.yaml
-│   ├── demo-app.yaml
-│   ├── ingress-nginx.yaml
-│   ├── postgresql.yaml
-│   └── url-shortener.yaml
-└── components/               # Self-contained Kubernetes workloads (1 component = 1 namespace)
+│   ├── kustomization.yaml    # Active application list
+│   ├── argocd.yaml           # Platform ArgoCD definition (managed by bootstrap)
+│   ├── demo-app.yaml         # Live operational workload
+│   ├── ingress-nginx.yaml    # Ingress controller definition (managed by bootstrap)
+│   ├── postgresql.yaml       # Persistent PostgreSQL StatefulSet (staged)
+│   └── url-shortener.yaml    # Microservice Helm chart (staged)
+└── components/               # Self-contained Kubernetes workload manifests
     ├── argocd/               # ArgoCD self-configuration & ingress
-    ├── demo-app/             # Operational Kubernetes demonstration workload (hello-kubernetes)
+    ├── demo-app/             # Operational Kubernetes workload (paulbouwer/hello-kubernetes)
     ├── ingress-nginx/        # Ingress controller configurations
     ├── postgresql/           # Persistent PostgreSQL StatefulSet
     └── url-shortener/        # Microservice Helm chart & configurations
@@ -30,22 +37,42 @@ Declarative GitOps repository for the local engineering cluster. Managed continu
 
 ---
 
-## How It Works
+## Quick Start (GitOps Registration)
 
-1. **Root Application**: `root-application.yaml` is registered with ArgoCD once and watches the `apps/` directory.
-2. **Component Applications**: ArgoCD synchronizes `apps/`, provisioning a dedicated ArgoCD `Application` resource for each component.
-3. **Independent Lifecycle**: Each service in `components/` is independently managed, reconciled, monitored, and synced by its own dedicated Application.
+Once the cluster and ArgoCD are bootstrapped by `My-home-Lab-setup`, register this GitOps repository with a single command:
+
+```bash
+kubectl apply -f root-application.yaml
+```
+
+ArgoCD will immediately:
+1. Reconcile `root-application` against the `apps/` directory on `main`.
+2. Discover and create the child `demo-app` Application.
+3. Automatically provision the `demo-app` namespace and roll out the workload.
+
+---
+
+## Application Component Status
+
+| Component | Namespace | Managed Via | Status | Endpoint |
+|---|---|---|---|---|
+| **`root-application`** | `argocd` | Manual Bootstrap | **Active** | Tracks `apps/` |
+| **`demo-app`** | `demo-app` | ArgoCD (`apps/demo-app.yaml`) | **Active** | [http://demo.links.test](http://demo.links.test) |
+| **`postgresql`** | `postgresql` | ArgoCD (`apps/postgresql.yaml`) | *Staged* | Uncomment in `apps/kustomization.yaml` |
+| **`url-shortener`** | `url-shortener` | ArgoCD (`apps/url-shortener.yaml`) | *Staged* | Uncomment in `apps/kustomization.yaml` |
+| **`ingress-nginx`** | `ingress-nginx` | Platform Bootstrap | **Active** | Managed via `My-home-Lab-setup` |
+| **`argocd`** | `argocd` | Platform Bootstrap | **Active** | [https://argo.links.test](https://argo.links.test) |
 
 ---
 
 ## Demo Workload (`demo-app`)
 
-The `demo-app` is a functional Kubernetes demonstration workload powered by [`paulbouwer/hello-kubernetes`](https://github.com/paulbouwer/hello-kubernetes).
+The `demo-app` is a functional Kubernetes demonstration workload powered by [`paulbouwer/hello-kubernetes:1.11`](https://github.com/paulbouwer/hello-kubernetes).
 
 Accessible at: `http://demo.links.test`
 
 It serves as a live testbed to demonstrate core Kubernetes and GitOps behaviors:
-* **Live Pod Metadata**: Reports active Pod Name, Pod IP, and Node Name in real-time.
-* **Replica Scaling**: Change `replicas: 1` to `replicas: 3` in `components/demo-app/manifests.yaml`, commit to Git, and observe round-robin load balancing across different pod hostnames.
-* **Rolling Updates**: Update the `MESSAGE` environment variable in Git, push, and observe zero-downtime rolling updates in ArgoCD.
-* **Health Probes**: Configured with real `livenessProbe` and `readinessProbe` endpoints (`:8080/`).
+* **Live Pod Metadata**: Uses the Downward API to report active **Namespace**, **Pod Name**, and **Node Name** in real-time.
+* **Replica Scaling**: Change `replicas: 1` to `replicas: 3` in `components/demo-app/manifests.yaml`, commit to Git, and observe round-robin load balancing across different pod hostnames on page refresh.
+* **Zero-Downtime Rollouts**: Update the `MESSAGE` environment variable or image tag in Git, push, and observe zero-downtime rolling updates in ArgoCD.
+* **Health Probes**: Configured with native `livenessProbe` and `readinessProbe` endpoints (`:8080/`).
