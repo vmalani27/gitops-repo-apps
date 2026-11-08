@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Active applications managed by GitOps
+  - demo-app.yaml
+
+  # Workloads under development (uncomment when ready to deploy)
+  # - postgresql.yaml
+  # - url-shortener.yaml
+
+  # Cluster infrastructure (managed via bootstrap Makefile; keep commented out)
+  # - ingress-nginx.yaml
+  # - argocd.yaml
