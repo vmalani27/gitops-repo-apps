@@ -53,19 +53,9 @@
       gap: 20px;
     }
 
-    .wordmark {
-      font-weight: 650;
-      letter-spacing: -.02em;
-    }
-
-    .status-badge {
-      font-size: .82rem;
-      padding: 3px 10px;
-      border-radius: 9999px;
-      background: #eef5f0;
-      color: var(--accent);
-      border: 1px solid #d4e5d9;
-      font-weight: 600;
+    .topbar-note {
+      color: var(--muted);
+      font-size: .87rem;
     }
 
     main {
@@ -190,6 +180,7 @@
 
     @media (max-width: 560px) {
       .details { grid-template-columns: 1fr; gap: 14px; }
+      .topbar-note { font-size: .8rem; }
     }
   </style>
 </head>
@@ -197,8 +188,7 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <span class="wordmark">GitOps Guide</span>
-      <span class="status-badge">ArgoCD · demo-app</span>
+      <span class="topbar-note">GitOps Guide</span>
     </div>
   </div>
 
@@ -207,7 +197,6 @@
       <p class="eyebrow">Continuous Delivery Architecture</p>
       <h1>How ArgoCD Works: Root Application, Projects &amp; Applications</h1>
       <p class="lead">
-        This service runs in the local cluster and is reconciled continuously from Git.
         Rather than deploying workloads imperatively, GitOps uses declarative configuration
         as the single source of truth. Below is an overview of how the Root Application,
         AppProjects, and Child Applications operate together.
