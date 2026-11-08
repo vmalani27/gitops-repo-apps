@@ -22,29 +22,25 @@ spec:
     spec:
       containers:
         - name: hello-kubernetes
-          image: paulbouwer/hello-kubernetes:1.10.1
+          image: paulbouwer/hello-kubernetes:1.11
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:
             - name: MESSAGE
               value: "Hello from GitOps! Reconciled continuously by ArgoCD."
-            - name: NODE_NAME
+            - name: KUBERNETES_NODE_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            - name: POD_NAME
+            - name: KUBERNETES_POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            - name: POD_NAMESPACE
+            - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
           resources:
             limits:
               cpu: 150m
@@ -62,7 +58,7 @@ spec:
             httpGet:
               path: /
               port: 8080
-            initialDelaySeconds: 2
+            initialDelaySeconds: 3
             periodSeconds: 5
 ---
 apiVersion: v1
