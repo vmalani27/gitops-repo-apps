@@ -2,7 +2,7 @@
 
 Declarative GitOps repository for the local engineering cluster. Managed continuously by ArgoCD using the **App of Apps** pattern.
 
-📖 **Architecture & Learning Guide**: See [GitOps Architecture Guide](docs/gitops-architecture.md) for in-depth documentation on the Root Application, AppProjects, child Applications, self-healing, and hands-on experiments.
+Architecture & Learning Guide: See [GitOps Architecture Guide](docs/gitops-architecture.md) for in-depth documentation on the Root Application, AppProjects, child Applications, self-healing, and hands-on experiments.
 
 ---
 
@@ -20,19 +20,11 @@ Declarative GitOps repository for the local engineering cluster. Managed continu
 ├── root-application.yaml     # ArgoCD root App of Apps pointing to apps/
 ├── docs/                     # Architecture & GitOps learning documentation
 │   └── gitops-architecture.md
-├── apps/                     # Dedicated ArgoCD Application manifests for components
-│   ├── kustomization.yaml    # Active application list
-│   ├── argocd.yaml           # Platform ArgoCD definition (managed by bootstrap)
-│   ├── demo-app.yaml         # Live operational workload
-│   ├── ingress-nginx.yaml    # Ingress controller definition (managed by bootstrap)
-│   ├── postgresql.yaml       # Persistent PostgreSQL StatefulSet (staged)
-│   └── url-shortener.yaml    # Microservice Helm chart (staged)
+├── apps/                     # Dedicated ArgoCD Application manifests
+│   ├── kustomization.yaml    # Application list
+│   └── demo-app.yaml         # Live operational workload
 └── components/               # Self-contained Kubernetes workload manifests
-    ├── argocd/               # ArgoCD self-configuration & ingress
-    ├── demo-app/             # Operational Kubernetes workload (paulbouwer/hello-kubernetes)
-    ├── ingress-nginx/        # Ingress controller configurations
-    ├── postgresql/           # Persistent PostgreSQL StatefulSet
-    └── url-shortener/        # Microservice Helm chart & configurations
+    └── demo-app/             # Operational Kubernetes workload (paulbouwer/hello-kubernetes)
 ```
 
 ---
@@ -52,18 +44,18 @@ ArgoCD will immediately:
 
 ---
 
-## Application Component Status
+<!--
+## Application Component Status (Staged Components Commented Out for Now)
 
 | Component | Namespace | Managed Via | Status | Endpoint |
 |---|---|---|---|---|
 | **`root-application`** | `argocd` | Manual Bootstrap | **Active** | Tracks `apps/` |
 | **`demo-app`** | `demo-app` | ArgoCD (`apps/demo-app.yaml`) | **Active** | [http://demo.links.test](http://demo.links.test) |
-| **`postgresql`** | `postgresql` | ArgoCD (`apps/postgresql.yaml`) | *Staged* | Uncomment in `apps/kustomization.yaml` |
-| **`url-shortener`** | `url-shortener` | ArgoCD (`apps/url-shortener.yaml`) | *Staged* | Uncomment in `apps/kustomization.yaml` |
-| **`ingress-nginx`** | `ingress-nginx` | Platform Bootstrap | **Active** | Managed via `My-home-Lab-setup` |
-| **`argocd`** | `argocd` | Platform Bootstrap | **Active** | [https://argo.links.test](https://argo.links.test) |
-
----
+| **`postgresql`** | `postgresql` | ArgoCD (`apps/postgresql.yaml`) | Staged | Uncomment in `apps/kustomization.yaml` |
+| **`url-shortener`** | `url-shortener` | ArgoCD (`apps/url-shortener.yaml`) | Staged | Uncomment in `apps/kustomization.yaml` |
+| **`ingress-nginx`** | `ingress-nginx` | Platform Bootstrap | Active | Managed via `My-home-Lab-setup` |
+| **`argocd`** | `argocd` | Platform Bootstrap | Active | [https://argo.links.test](https://argo.links.test) |
+-->
 
 ## Demo Workload (`demo-app`)
 
