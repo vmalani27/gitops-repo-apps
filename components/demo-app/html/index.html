@@ -4,28 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>ArgoCD GitOps Architecture Guide · Demo App</title>
+  <title>GitOps Architecture Guide · Demo Service</title>
 
   <style>
     :root {
       color-scheme: light;
-      --page: #f8fafc;
-      --paper: #ffffff;
-      --ink: #0f172a;
-      --muted: #475569;
-      --light-muted: #64748b;
-      --line: #e2e8f0;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-subtle: #f0f9ff;
-      --accent-border: #bae6fd;
-      --emerald: #059669;
-      --emerald-subtle: #ecfdf5;
-      --emerald-border: #a7f3d0;
-      --code-bg: #f1f5f9;
-      --code-border: #cbd5e1;
-      --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --width: 860px;
+      --page: #f7f7f3;
+      --paper: #fffefa;
+      --ink: #252821;
+      --muted: #666b61;
+      --line: #dedfd6;
+      --accent: #446d55;
+      --code-bg: #eeefe8;
+      --width: 780px;
     }
 
     * { box-sizing: border-box; }
@@ -33,393 +24,172 @@
     body {
       margin: 0;
       color: var(--ink);
-      font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
     a {
       color: var(--accent);
-      text-decoration: none;
-      font-weight: 500;
+      text-underline-offset: 3px;
     }
-    a:hover { text-decoration: underline; }
 
     .topbar {
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(8px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background: rgba(255, 254, 250, .72);
     }
 
     .topbar-inner,
     main,
     footer {
-      width: min(var(--width), calc(100% - 48px));
+      width: min(var(--width), calc(100% - 40px));
       margin-inline: auto;
     }
 
     .topbar-inner {
-      min-height: 64px;
+      min-height: 62px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 20px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
+    .wordmark {
+      font-weight: 650;
       letter-spacing: -.02em;
-      font-size: 1.05rem;
     }
 
-    .brand-badge {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 0 3px var(--emerald-subtle);
-    }
-
-    .badges {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      font-size: .78rem;
+    .status-badge {
+      font-size: .82rem;
       padding: 3px 10px;
       border-radius: 9999px;
-      font-weight: 600;
-      border: 1px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill-green {
-      background: var(--emerald-subtle);
-      color: var(--emerald);
-      border-color: var(--emerald-border);
-    }
-
-    .pill-blue {
-      background: var(--accent-subtle);
+      background: #eef5f0;
       color: var(--accent);
-      border-color: var(--accent-border);
+      border: 1px solid #d4e5d9;
+      font-weight: 600;
     }
 
     main {
-      padding: 56px 0 24px;
+      padding: 62px 0 12px;
     }
 
-    .hero {
-      margin-bottom: 48px;
+    .intro {
+      max-width: 690px;
     }
 
     .eyebrow {
-      margin: 0 0 12px;
+      margin: 0 0 13px;
       color: var(--accent);
-      font-size: .84rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .06em;
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .025em;
     }
 
+    h1, h2, p { margin-top: 0; }
+
     h1 {
-      margin: 0 0 16px;
-      font-size: clamp(2.1rem, 5vw, 2.9rem);
+      max-width: 680px;
+      margin-bottom: 18px;
+      font-size: clamp(2.2rem, 5.5vw, 2.9rem);
       line-height: 1.15;
-      letter-spacing: -.035em;
-      font-weight: 800;
-      color: #0f172a;
+      letter-spacing: -.04em;
+      font-weight: 650;
     }
 
     .lead {
-      margin: 0 0 24px;
-      color: var(--muted);
-      font-size: 1.12rem;
-      line-height: 1.7;
-      max-width: 780px;
+      max-width: 680px;
+      margin-bottom: 14px;
+      color: #454a42;
+      font-size: 1.08rem;
+      line-height: 1.8;
     }
 
-    .alert-box {
-      background: var(--accent-subtle);
-      border: 1px solid var(--accent-border);
-      border-radius: 8px;
-      padding: 16px 20px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      color: #0369a1;
-      font-size: .95rem;
-      line-height: 1.6;
-    }
-
-    .alert-box strong { color: #0c4a6e; }
-
-    /* Concept Cards Grid */
-    .pillar-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin: 40px 0 48px;
-    }
-
-    .pillar-card {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 24px;
-      box-shadow: var(--card-shadow);
-      display: flex;
-      flex-direction: column;
-      transition: transform .15s ease, box-shadow .15s ease;
-    }
-
-    .pillar-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    }
-
-    .pillar-card .pillar-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: var(--accent-subtle);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      margin-bottom: 16px;
-    }
-
-    .pillar-card h3 {
-      margin: 0 0 8px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .pillar-card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: .92rem;
-      line-height: 1.6;
-      flex-grow: 1;
-    }
-
-    /* Architecture Diagram */
-    .arch-diagram {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 28px;
-      margin: 36px 0;
-      box-shadow: var(--card-shadow);
-    }
-
-    .diagram-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin: 0 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .flow-tree {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .flow-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .flow-box {
-      padding: 12px 18px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      font-size: .88rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .flow-git {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #991b1b;
-    }
-
-    .flow-root {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-      color: #1e40af;
-    }
-
-    .flow-app {
-      background: #ecfdf5;
-      border-color: #a7f3d0;
-      color: #065f46;
-    }
-
-    .flow-k8s {
-      background: #faf5ff;
-      border-color: #e9d5ff;
-      color: #6b21a8;
-    }
-
-    .flow-arrow {
-      color: var(--light-muted);
-      font-weight: bold;
-    }
-
-    .flow-desc {
-      color: var(--muted);
-      font-size: .85rem;
-      margin-left: 4px;
-    }
-
-    /* Section & Content Blocks */
     section {
-      margin-top: 52px;
-      padding-top: 32px;
+      margin-top: 48px;
+      padding-top: 28px;
       border-top: 1px solid var(--line);
     }
 
     h2 {
-      margin: 0 0 12px;
-      font-size: 1.45rem;
-      font-weight: 750;
+      margin-bottom: 9px;
+      font-size: 1.22rem;
+      font-weight: 650;
       letter-spacing: -.02em;
-      color: var(--ink);
     }
 
     .section-intro {
+      max-width: 680px;
+      margin-bottom: 20px;
       color: var(--muted);
-      font-size: 1rem;
-      margin: 0 0 24px;
-      max-width: 760px;
-    }
-
-    .code-block {
-      background: #0f172a;
-      color: #f8fafc;
-      border-radius: 8px;
-      padding: 18px 20px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: .86rem;
-      line-height: 1.6;
-      overflow-x: auto;
-      margin: 16px 0;
-      border: 1px solid #1e293b;
-    }
-
-    .code-comment { color: #64748b; }
-    .code-key { color: #38bdf8; }
-    .code-val { color: #4ade80; }
-    .code-str { color: #fde047; }
-
-    /* Features Grid */
-    .features-list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin: 20px 0;
-    }
-
-    .feature-item {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px 18px;
-    }
-
-    .feature-item h4 {
-      margin: 0 0 6px;
       font-size: .95rem;
-      font-weight: 700;
-      color: var(--ink);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      line-height: 1.65;
     }
 
-    .feature-item p {
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 34px;
+      margin: 22px 0 0;
+    }
+
+    dt {
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    dd {
       margin: 0;
-      font-size: .88rem;
-      color: var(--muted);
-      line-height: 1.5;
+      font-weight: 520;
     }
 
-    /* Interactive Experiments */
-    .experiment-card {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-left: 4px solid var(--accent);
-      border-radius: 8px;
-      padding: 18px 20px;
-      margin-bottom: 16px;
-      box-shadow: var(--card-shadow);
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .88em;
     }
 
-    .experiment-card h4 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .experiment-card p {
-      margin: 0 0 10px;
-      font-size: .9rem;
-      color: var(--muted);
-    }
-
-    .terminal-cmd {
+    p code, dd code {
+      padding: .13em .35em;
       background: var(--code-bg);
-      border: 1px solid var(--code-border);
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: .86rem;
-      color: #0f172a;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      user-select: all;
+      border-radius: 4px;
     }
 
-    footer {
-      margin-top: 64px;
-      padding: 24px 0 40px;
-      border-top: 1px solid var(--line);
-      color: var(--light-muted);
-      font-size: .88rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
+    .commands {
+      margin-top: 18px;
+      display: grid;
       gap: 12px;
     }
 
-    @media (max-width: 768px) {
-      .pillar-grid { grid-template-columns: 1fr; }
-      .features-list { grid-template-columns: 1fr; }
-      .flow-row { flex-wrap: wrap; }
+    .command {
+      padding: 14px 16px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .command p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: .91rem;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      color: var(--ink);
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    footer {
+      margin-top: 56px;
+      padding: 20px 0 32px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    @media (max-width: 560px) {
+      .details { grid-template-columns: 1fr; gap: 14px; }
     }
   </style>
 </head>
@@ -427,243 +197,205 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="brand">
-        <span class="brand-badge"></span>
-        <span>ArgoCD GitOps Laboratory</span>
-      </div>
-      <div class="badges">
-        <span class="pill pill-green">Status: Synced & Healthy</span>
-        <span class="pill pill-blue">App: demo-app</span>
-      </div>
+      <span class="wordmark">GitOps Guide</span>
+      <span class="status-badge">ArgoCD · demo-app</span>
     </div>
   </div>
 
   <main>
-    <div class="hero">
-      <p class="eyebrow">Interactive GitOps Tutorial</p>
-      <h1>ArgoCD Architecture: Root Application, Projects & Applications</h1>
+    <header class="intro">
+      <p class="eyebrow">Continuous Delivery Architecture</p>
+      <h1>How ArgoCD Works: Root Application, Projects &amp; Applications</h1>
       <p class="lead">
-        This web application is live proof of GitOps in action. It is reconciled dynamically 
-        from Git using ArgoCD's <strong>App of Apps pattern</strong>. Below is the blueprint 
-        explaining how Root Applications, AppProjects, and Child Applications orchestrate your cluster.
+        This service runs in the local cluster and is reconciled continuously from Git.
+        Rather than deploying workloads imperatively, GitOps uses declarative configuration
+        as the single source of truth. Below is an overview of how the Root Application,
+        AppProjects, and Child Applications operate together.
+      </p>
+    </header>
+
+    <section aria-labelledby="architecture-heading">
+      <h2 id="architecture-heading">1. The App of Apps Pattern</h2>
+      <p class="section-intro">
+        Instead of a single monolithic manifest managing every component, this repository
+        uses the App of Apps pattern. A parent root application watches the Git repository
+        and provisions independent child Application resources for each workload.
       </p>
 
-      <div class="alert-box">
-        <div>💡</div>
+      <dl class="details">
         <div>
-          <strong>GitOps Single Source of Truth:</strong> Any manual change made with 
-          <code>kubectl edit</code> or <code>kubectl delete</code> on this service is 
-          automatically detected and reverted by ArgoCD's self-healing engine to match Git.
-        </div>
-      </div>
-    </div>
-
-    <!-- The 3 Core Pillars -->
-    <div class="pillar-grid">
-      <div class="pillar-card">
-        <div class="pillar-icon">🌱</div>
-        <h3>1. Root Application</h3>
-        <p>
-          The bootstrap orchestrator. It uses the <em>App of Apps</em> pattern to watch the 
-          <code>apps/</code> directory in Git and dynamically registers every individual service.
-        </p>
-      </div>
-
-      <div class="pillar-card">
-        <div class="pillar-icon">🛡️</div>
-        <h3>2. AppProject</h3>
-        <p>
-          The multi-tenancy & security boundary. Defines which Git repos, destination clusters, 
-          namespaces, and Kubernetes resource kinds are allowed.
-        </p>
-      </div>
-
-      <div class="pillar-card">
-        <div class="pillar-icon">📦</div>
-        <h3>3. Application CR</h3>
-        <p>
-          The workload deployer. Binds a Git repository path to a cluster namespace with automated 
-          synchronization, self-healing, and resource pruning.
-        </p>
-      </div>
-    </div>
-
-    <!-- Visual Architecture Flow -->
-    <div class="arch-diagram">
-      <div class="diagram-title">
-        <span>ArgoCD GitOps Reconciliation Flow</span>
-        <span class="pill pill-blue">Two-Tier App-of-Apps</span>
-      </div>
-
-      <div class="flow-tree">
-        <div class="flow-row">
-          <div class="flow-box flow-git">📁 Git: gitops-repo-apps</div>
-          <span class="flow-arrow">➔</span>
-          <span class="flow-desc">Monitors <code>main</code> branch</span>
+          <dt>Root Application</dt>
+          <dd><code>root-application.yaml</code> (monitors <code>apps/</code>)</dd>
         </div>
 
-        <div class="flow-row" style="margin-left: 24px;">
-          <span class="flow-arrow">↳</span>
-          <div class="flow-box flow-root">🚀 root-application (argocd)</div>
-          <span class="flow-arrow">➔</span>
-          <span class="flow-desc">Reconciles <code>apps/</code> manifests</span>
+        <div>
+          <dt>Child Application</dt>
+          <dd><code>apps/demo-app.yaml</code> (monitors <code>components/demo-app</code>)</dd>
         </div>
 
-        <div class="flow-row" style="margin-left: 56px;">
-          <span class="flow-arrow">↳</span>
-          <div class="flow-box flow-app">📦 Application: demo-app</div>
-          <span class="flow-arrow">➔</span>
-          <span class="flow-desc">Watches <code>components/demo-app</code></span>
+        <div>
+          <dt>Governance Boundary</dt>
+          <dd><code>AppProject</code> (default project)</dd>
         </div>
 
-        <div class="flow-row" style="margin-left: 88px;">
-          <span class="flow-arrow">↳</span>
-          <div class="flow-box flow-k8s">☸️ Namespace: demo-app</div>
-          <span class="flow-desc">Deployment, Service, ConfigMap & Ingress</span>
+        <div>
+          <dt>Workload Target</dt>
+          <dd><code>demo-app</code> namespace</dd>
         </div>
-      </div>
-    </div>
+      </dl>
+    </section>
 
-    <!-- Deep Dive 1: Root Application -->
-    <section>
-      <h2>Pillar 1: The Root Application (App of Apps)</h2>
+    <section aria-labelledby="root-app-heading">
+      <h2 id="root-app-heading">2. The Root Application (Bootstrap Entrypoint)</h2>
       <p class="section-intro">
-        In standard Kubernetes, deploying 10 applications means managing 10 separate deployment commands. 
-        The <strong>App of Apps pattern</strong> solves this by using one "Root" ArgoCD Application whose 
-        only job is to create and track child Applications.
+        The root application is the single registration step for the entire repository.
+        Once applied to Kubernetes, it monitors the <code>apps/</code> directory in Git
+        and automatically creates each service's Application custom resource.
       </p>
 
-      <div class="code-block">
-<span class="code-comment"># root-application.yaml</span>
-<span class="code-key">apiVersion</span>: <span class="code-val">argoproj.io/v1alpha1</span>
-<span class="code-key">kind</span>: <span class="code-val">Application</span>
-<span class="code-key">metadata</span>:
-  <span class="code-key">name</span>: <span class="code-val">root-application</span>
-  <span class="code-key">namespace</span>: <span class="code-val">argocd</span>
-<span class="code-key">spec</span>:
-  <span class="code-key">project</span>: <span class="code-val">default</span>
-  <span class="code-key">source</span>:
-    <span class="code-key">repoURL</span>: <span class="code-str">https://github.com/vmalani27/gitops-repo-apps.git</span>
-    <span class="code-key">targetRevision</span>: <span class="code-val">main</span>
-    <span class="code-key">path</span>: <span class="code-str">apps</span>  <span class="code-comment"># Points to folder containing child Application CRDs</span>
-  <span class="code-key">destination</span>:
-    <span class="code-key">server</span>: <span class="code-str">https://kubernetes.default.svc</span>
-    <span class="code-key">namespace</span>: <span class="code-val">argocd</span>
-  <span class="code-key">syncPolicy</span>:
-    <span class="code-key">automated</span>:
-      <span class="code-key">prune</span>: <span class="code-val">true</span>
-      <span class="code-key">selfHeal</span>: <span class="code-val">true</span>
-      </div>
-
-      <div class="features-list">
-        <div class="feature-item">
-          <h4>🌟 Independent Lifecycles</h4>
-          <p>Each component has its own card in the ArgoCD UI, enabling individual sync, rollbacks, and diff checking.</p>
-        </div>
-        <div class="feature-item">
-          <h4>🚫 No Monolithic Failures</h4>
-          <p>If one component has a syntax error, only that application turns OutOfSync; other services deploy normally.</p>
-        </div>
+      <div class="command">
+        <p>Declarative Root Application manifest (root-application.yaml):</p>
+        <pre><code>apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-application
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/vmalani27/gitops-repo-apps.git
+    targetRevision: main
+    path: apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true</code></pre>
       </div>
     </section>
 
-    <!-- Deep Dive 2: AppProject -->
-    <section>
-      <h2>Pillar 2: ArgoCD Projects (AppProject)</h2>
+    <section aria-labelledby="project-heading">
+      <h2 id="project-heading">3. AppProjects (Tenancy and Access Control)</h2>
       <p class="section-intro">
-        An <code>AppProject</code> provides logical grouping, governance, and RBAC boundaries. In enterprise setups, 
-        projects isolate team access and prevent applications from exceeding their security radius.
+        An AppProject defines a logical security boundary around applications. While this
+        local setup uses the default project, production environments use projects to
+        isolate teams, enforce policies, and restrict permissions.
       </p>
 
-      <div class="features-list">
-        <div class="feature-item">
-          <h4>🔒 Source Repository Whitelisting</h4>
-          <p>Restricts which Git repositories this project's applications can deploy code from.</p>
+      <dl class="details">
+        <div>
+          <dt>Source Repositories</dt>
+          <dd>Whitelist approved Git repositories and branches.</dd>
         </div>
-        <div class="feature-item">
-          <h4>🎯 Destination Whitelisting</h4>
-          <p>Limits which Kubernetes clusters and namespaces workloads can be scheduled into.</p>
+
+        <div>
+          <dt>Cluster Destinations</dt>
+          <dd>Restrict target clusters and target namespaces.</dd>
         </div>
-        <div class="feature-item">
-          <h4>🛡️ Resource Blacklisting</h4>
-          <p>Prevents applications from creating privileged resources (e.g. ClusterRoles, CRDs, or Namespaces).</p>
+
+        <div>
+          <dt>Cluster Resource Restrictions</dt>
+          <dd>Block applications from creating ClusterRoles or CRDs.</dd>
         </div>
-        <div class="feature-item">
-          <h4>👥 Role-Based Access (RBAC)</h4>
-          <p>Assigns read-only or sync privileges to specific developer groups and JWT tokens.</p>
+
+        <div>
+          <dt>Namespace Resource Restrictions</dt>
+          <dd>Whitelist standard workloads (Deployments, Services, Ingress).</dd>
         </div>
-      </div>
+      </dl>
     </section>
 
-    <!-- Deep Dive 3: The Child Application -->
-    <section>
-      <h2>Pillar 3: The Child Application (This Demo App)</h2>
+    <section aria-labelledby="child-app-heading">
+      <h2 id="child-app-heading">4. Child Applications (Individual Workloads)</h2>
       <p class="section-intro">
-        Defined in <code>apps/demo-app.yaml</code>, this Application manifest points to 
-        <code>components/demo-app</code>. It contains the instructions that deployed this exact web server.
+        Each workload inside <code>components/</code> has a dedicated Application manifest
+        in <code>apps/</code>. This gives every service its own health tracking, sync status,
+        and rollback history.
       </p>
 
-      <div class="code-block">
-<span class="code-comment"># apps/demo-app.yaml</span>
-<span class="code-key">apiVersion</span>: <span class="code-val">argoproj.io/v1alpha1</span>
-<span class="code-key">kind</span>: <span class="code-val">Application</span>
-<span class="code-key">metadata</span>:
-  <span class="code-key">name</span>: <span class="code-val">demo-app</span>
-  <span class="code-key">namespace</span>: <span class="code-val">argocd</span>
-<span class="code-key">spec</span>:
-  <span class="code-key">project</span>: <span class="code-val">default</span>
-  <span class="code-key">source</span>:
-    <span class="code-key">repoURL</span>: <span class="code-str">https://github.com/vmalani27/gitops-repo-apps.git</span>
-    <span class="code-key">targetRevision</span>: <span class="code-val">main</span>
-    <span class="code-key">path</span>: <span class="code-str">components/demo-app</span>
-  <span class="code-key">destination</span>:
-    <span class="code-key">server</span>: <span class="code-str">https://kubernetes.default.svc</span>
-    <span class="code-key">namespace</span>: <span class="code-val">demo-app</span>
-  <span class="code-key">syncPolicy</span>:
-    <span class="code-key">automated</span>:
-      <span class="code-key">prune</span>: <span class="code-val">true</span>      <span class="code-comment"># Deletes cluster resources when deleted from Git</span>
-      <span class="code-key">selfHeal</span>: <span class="code-val">true</span>   <span class="code-comment"># Overwrites manual cluster drift back to Git state</span>
-    <span class="code-key">syncOptions</span>:
-      - <span class="code-val">CreateNamespace=true</span>
+      <div class="command">
+        <p>Demo application manifest (apps/demo-app.yaml):</p>
+        <pre><code>apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/vmalani27/gitops-repo-apps.git
+    targetRevision: main
+    path: components/demo-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true</code></pre>
       </div>
+
+      <dl class="details">
+        <div>
+          <dt>automated.prune: true</dt>
+          <dd>Deletes cluster resources when deleted from Git.</dd>
+        </div>
+
+        <div>
+          <dt>automated.selfHeal: true</dt>
+          <dd>Detects manual cluster drift and restores Git state.</dd>
+        </div>
+
+        <div>
+          <dt>CreateNamespace=true</dt>
+          <dd>Automatically provisions the destination namespace.</dd>
+        </div>
+
+        <div>
+          <dt>Failure Isolation</dt>
+          <dd>Issues in one service do not affect other applications.</dd>
+        </div>
+      </dl>
     </section>
 
-    <!-- Interactive Terminal Lab -->
-    <section>
-      <h2>Try It Out: Hands-on GitOps Experiments</h2>
+    <section aria-labelledby="inspect-heading">
+      <h2 id="inspect-heading">5. Inspect and Test the Deployment</h2>
       <p class="section-intro">
-        Experience GitOps principles live in your engineering terminal:
+        You can inspect and test GitOps operations directly from your terminal:
       </p>
 
-      <div class="experiment-card">
-        <h4>🧪 Lab 1: Test Self-Healing (Break & Auto-Recover)</h4>
-        <p>Delete this demo app's pod imperatively. Notice how ArgoCD immediately detects the missing resource and recreates it within seconds to match Git:</p>
-        <div class="terminal-cmd">
-          <span>kubectl delete pod -n demo-app -l app=demo-app</span>
+      <div class="commands">
+        <div class="command">
+          <p>List all ArgoCD applications and their sync status.</p>
+          <pre><code>kubectl get applications -n argocd</code></pre>
         </div>
-      </div>
 
-      <div class="experiment-card">
-        <h4>🔍 Lab 2: Inspect Application Synchronization Status</h4>
-        <p>Check how ArgoCD reports the health, sync revision, and destination for this workload:</p>
-        <div class="terminal-cmd">
-          <span>kubectl get application demo-app -n argocd -o wide</span>
+        <div class="command">
+          <p>Inspect the detailed status and live sync tree of this application.</p>
+          <pre><code>kubectl describe application demo-app -n argocd</code></pre>
         </div>
-      </div>
 
-      <div class="experiment-card">
-        <h4>🌐 Lab 3: Open the ArgoCD Dashboard</h4>
-        <p>View the live graphical tree showing root-application managing demo-app:</p>
-        <div class="terminal-cmd">
-          <span>https://argo.links.test (User: admin)</span>
+        <div class="command">
+          <p>Test self-healing: delete this pod and verify that ArgoCD recreates it automatically.</p>
+          <pre><code>kubectl delete pod -n demo-app -l app=demo-app</code></pre>
+        </div>
+
+        <div class="command">
+          <p>View the graphical deployment topology in the ArgoCD web console.</p>
+          <pre><code>https://argo.links.test (Username: admin)</code></pre>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <div>GitOps Local Engineering Platform · Managed via ArgoCD</div>
-    <div style="font-weight: 600; color: var(--ink);">Built with ❤️ by Vansh Malani.</div>
+    <div>
+      Local Kubernetes &amp; GitOps Platform Lab. Built by Vansh Malani.
+    </div>
   </footer>
 </body>
 </html>
