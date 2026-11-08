@@ -5,8 +5,3 @@ namespace: demo-app
 
 resources:
   - manifests.yaml
-
-configMapGenerator:
-  - name: demo-html
-    files:
-      - index.html=html/index.html
